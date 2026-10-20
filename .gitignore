@@ -1,0 +1,23 @@
+# LAB -- never commit real secrets or local state.
+# .env.example files are committed intentionally; real .env files are not.
+
+# Real environment files (placeholders in *.example are fine)
+.env
+*.env
+!.env.example
+
+# Exported logs and generated reports
+*.log
+report*.txt
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+
+# Local data dirs (bind-mounted scratch, dumps, backups)
+data/
+backups/
+dumps/
+
+# OS noise
+.DS_Store

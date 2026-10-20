@@ -1,0 +1,58 @@
+# LAB stack: python app + postgres on an internal bridge network.
+# Run on a Docker host:  cp .env.example .env   # then fill in secrets
+#                        docker compose up -d --build
+name: lab-app-db
+
+services:
+  app:
+    build:
+      # Relative to this compose file: ../../docker/python-app
+      context: ../../docker/python-app
+      dockerfile: Dockerfile
+    image: lab-app:local
+    container_name: lab-app
+    env_file:
+      - .env
+    environment:
+      APP_PORT: "8000"
+    ports:
+      # Loopback-only publish: reachable from the host, NOT from the LAN.
+      # This is the IT-shop default -- see docs/networking.md.
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        # Waits for the db HEALTHCHECK to pass, not just container start.
+        condition: service_healthy
+    networks:
+      - appnet
+    restart: unless-stopped
+
+  db:
+    # Pinned major + distro. Minor bumps (16.x) still flow; majors don't
+    # surprise you on a rebuild.
+    image: postgres:16-alpine
+    container_name: lab-db
+    env_file:
+      - .env
+    volumes:
+      # Named volume: data survives `docker compose down`. Backed up per
+      # docs/volumes-backup.md.
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - appnet
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    # NOTE: no `ports:` on purpose -- the database is reachable ONLY inside
+    # appnet (the app talks to it as `db:5432` via Docker DNS). From your
+    # laptop use:  docker compose exec db psql -U <user> -d labdb
+
+networks:
+  appnet:
+    driver: bridge
+
+volumes:
+  pgdata:
