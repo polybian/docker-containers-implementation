@@ -40,7 +40,7 @@ configuration; the patterns transfer, the values don't.
 | `docker/python-app/` | Multi-stage Python service (`app.py` + `Dockerfile`): pinned tag, non-root user, stdlib HEALTHCHECK, `/health` + `/metrics` endpoints |
 | `docker/nginx-proxy/` | Hardened reverse proxy: vendor **unprivileged** nginx variant, pinned tag, custom `nginx.conf` (`server_tokens off`, `/healthz`) |
 | `docker/alpine-utils/` | Tiny alpine network-diagnostics toolbox (`dig`, `curl`, `ip`, `ping`, `jq`, `nc`) as non-root |
-| `compose/app-db/` | Stack 1: app + Postgres on internal bridge network, named volume, `.env.example`, loopback-only publishing |
+| `compose/app-db/` | Stack 1: app + Postgres on internal bridge network, named volume, split `.env.app`/`.env.db` per service, loopback-only publishing |
 | `compose/monitoring/` | Stack 2: Prometheus (real `prometheus.yml` scrape config) + Grafana placeholder, named volumes |
 | `scripts/collect-logs.py` | Log triage helper (stdlib only): `--dir` or `--container` mode, error counts, top error lines, text report |
 | `tests/test_collect_logs.py` | 16 unit tests for the log collector |
@@ -52,7 +52,7 @@ configuration; the patterns transfer, the values don't.
 
 ## Quick start
 
-**Without Docker** (everything below ran in this sandbox):
+**Without Docker** (everything below ran locally):
 
 ```bash
 # Run the app directly -- stdlib only, no build needed
@@ -68,11 +68,12 @@ python3 scripts/collect-logs.py --dir /path/to/logs --output report.txt
 python3 -m unittest discover -s tests -v
 ```
 
-**On a Docker host** (needs the docker CLI -- not available in this sandbox):
+**On a Docker host** (needs the docker CLI -- not available locally):
 
 ```bash
 # Stack 1: app + db
-cp compose/app-db/.env.example compose/app-db/.env   # fill in secrets first
+cp compose/app-db/.env.app.example compose/app-db/.env.app
+cp compose/app-db/.env.db.example compose/app-db/.env.db   # fill in secrets first
 docker compose -f compose/app-db/docker-compose.yml up -d --build
 curl http://127.0.0.1:8000/health
 
@@ -89,9 +90,11 @@ docker build -t demo-utils ./docker/alpine-utils
 
 ## Security notes
 
-- **No secrets in images, ever.** Both `.env.example` files contain only
+- **No secrets in images, ever.** All `.env.*.example` files contain only
   `<generate-your-own>` placeholders; real `.env` files are gitignored. Config
   arrives at runtime via compose `env_file`, never baked into a layer.
+  Env files are split per service (`.env.app` vs `.env.db`) so the app never
+  receives `POSTGRES_PASSWORD`.
 - **Non-root everywhere:** `appuser`, the unprivileged nginx variant's
   `nginx` user, and `netop` in the toolbox.
 - **Loopback-only publishing** (`127.0.0.1:` prefix) on every published port;
@@ -104,7 +107,7 @@ docker build -t demo-utils ./docker/alpine-utils
 
 ## Validation
 
-### Ran in this sandbox (real results)
+### Ran locally (real results)
 
 **Unit tests -- 16/16 passing:**
 
@@ -195,15 +198,15 @@ toolbox; it now carries an explicit `# hadolint ignore=DL3018` with the
 justification in the Dockerfile and in `docs/image-security.md`.
 
 **Secret scan -- clean:** `grep` for credential patterns across the repo
-found no real secrets. Both `.env.example` files contain only
+found no real secrets. All `.env.*.example` files contain only
 `<generate-your-own>` placeholders; remaining hits are docs discussing
 secrets and the `.gitignore` itself. (`--container` mode fails cleanly here:
 `error: docker CLI not found on PATH`, exit 1 -- also covered by tests.)
 
 ### Needs a real Docker host (not validated here)
 
-- **Image builds** (`docker build` on all 3 Dockerfiles) -- the sandbox has
-  no docker CLI, so nothing was built. The Dockerfiles passed hadolint and
+- **Image builds** (`docker build` on all 3 Dockerfiles) -- no docker CLI
+  available locally, so nothing was built. The Dockerfiles passed hadolint and
   the app code ran for real, but the actual `docker build` is unverified.
 - **`docker compose up`** on both stacks, healthcheck behavior
   (`service_healthy` gating), and the cross-stack `docker network connect`

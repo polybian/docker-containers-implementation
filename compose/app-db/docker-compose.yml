@@ -1,6 +1,10 @@
 # Demo stack: python app + postgres on an internal bridge network.
-# Run on a Docker host:  cp .env.example .env   # then fill in secrets
-#                        docker compose up -d --build
+# Run on a Docker host:
+#   cp .env.app.example .env.app && cp .env.db.example .env.db  # then fill in secrets
+#   docker compose up -d --build
+#
+# Secrets are split by service: the app gets .env.app (no DB credentials),
+# the db gets .env.db (no app vars). Least privilege applies to env too.
 name: demo-app-db
 
 services:
@@ -12,7 +16,7 @@ services:
     image: demo-app:local
     container_name: demo-app
     env_file:
-      - .env
+      - .env.app
     environment:
       APP_PORT: "8000"
     ports:
@@ -33,7 +37,7 @@ services:
     image: postgres:16-alpine
     container_name: demo-db
     env_file:
-      - .env
+      - .env.db
     volumes:
       # Named volume: data survives `docker compose down`. Backed up per
       # docs/volumes-backup.md.

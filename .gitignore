@@ -3,8 +3,12 @@
 
 # Real environment files (placeholders in *.example are fine)
 .env
+.env.app
+.env.db
 *.env
 !.env.example
+!.env.app.example
+!.env.db.example
 
 # Exported logs and generated reports
 *.log

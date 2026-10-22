@@ -20,9 +20,8 @@ COPY nginx.conf /etc/nginx/conf.d/demo.conf
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1
 
-# The base image already defaults to USER nginx; restated explicitly because
-# "which user does this run as?" is an interview question you want answered
-# in the Dockerfile itself.
+# The base image already defaults to USER nginx; restated explicitly so
+# the runtime user is documented in the Dockerfile itself.
 USER nginx
 EXPOSE 8080
 

@@ -33,8 +33,7 @@ vuln as root is a host-compromise short step away.
 - Even the toolbox image (`alpine-utils`) runs as non-root `netop`. Habit
   beats exceptions.
 
-Interview-ready line: *"I treat USER as mandatory, not hardening -- root in
-a container should require a written justification."*
+*"I treat USER as mandatory, not hardening -- root in a container should require a written justification."*
 
 ## 3. Pinned base tags
 

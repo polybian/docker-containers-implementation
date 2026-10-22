@@ -11,6 +11,11 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+      # SECURITY NOTE: --web.enable-lifecycle exposes POST /-/reload and
+      # POST /-/quit with NO authentication — anyone who can reach :9090 can
+      # reload config or shut Prometheus down. Acceptable here ONLY because
+      # the port is published on 127.0.0.1 (loopback); never enable this flag
+      # on a network-reachable Prometheus without auth in front of it.
       - '--web.enable-lifecycle'
     volumes:
       # Config mounted read-only: a compromised prometheus can't rewrite its

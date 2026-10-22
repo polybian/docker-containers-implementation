@@ -5,7 +5,8 @@ Python app + Postgres on an **internal** bridge network (`appnet`).
 ## Run it (on a Docker host)
 
 ```bash
-cp .env.example .env      # then fill in POSTGRES_USER / POSTGRES_PASSWORD
+cp .env.app.example .env.app && cp .env.db.example .env.db
+# then fill in POSTGRES_USER / POSTGRES_PASSWORD in .env.db
 docker compose up -d --build
 curl http://127.0.0.1:8000/health
 ```
@@ -19,5 +20,6 @@ curl http://127.0.0.1:8000/health
   (`depends_on` + `service_healthy` on the `pg_isready` healthcheck).
 - **Data lives in the named volume `pgdata`** -- it survives
   `docker compose down`. Backup/restore procedure: `docs/volumes-backup.md`.
-- **Secrets come from `.env`** (gitignored), never baked into the image --
-  see `docs/image-security.md`.
+- **Secrets come from `.env.app` / `.env.db`** (gitignored), never baked into
+  the image -- see `docs/image-security.md`. Env files are split per service
+  so the app never sees `POSTGRES_PASSWORD` and the db never sees app vars.
