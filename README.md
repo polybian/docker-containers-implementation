@@ -49,7 +49,6 @@ configuration; the patterns transfer, the values don't.
 | `docs/volumes-backup.md` | Volumes vs bind mounts; step-by-step named-volume backup/restore |
 | `docs/troubleshooting.md` | Runbook: crashing containers, failed pulls, port conflicts, disk pressure |
 | `docs/image-security.md` | No secrets in images, least privilege, pinned tags, minimal bases |
-| `docs/interview-answers.md` | "How did you build this?" -- talking points for interviews |
 
 ## Quick start
 
