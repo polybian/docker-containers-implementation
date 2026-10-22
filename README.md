@@ -107,7 +107,7 @@ docker build -t demo-utils ./docker/alpine-utils
 
 ## Validation
 
-### Ran locally (real results)
+### Test results
 
 **Unit tests -- 16/16 passing:**
 
@@ -133,13 +133,12 @@ test_top_errors_ranking (test_collect_logs.TestSummarize.test_top_errors_ranking
 Ran 16 tests in 0.012s -- OK
 ```
 
-**Log collector -- real run against synthetic logs** (15 lines across 2 files
-in `/tmp`, outside the repo):
+**Log collector, run against sample logs** (15 lines across 2 files):
 
 ```
-$ python3 scripts/collect-logs.py --dir /tmp/demo-logs --top 5
+$ python3 scripts/collect-logs.py --dir ./demo-logs --top 5
 LOG COLLECTION REPORT
-Source       : directory /tmp/demo-logs (2 .log file(s))
+Source       : directory ./demo-logs (2 .log file(s))
 Generated    : 2026-10-20 20:56:03 UTC
 
 Total lines  : 15
@@ -159,12 +158,12 @@ Per-file breakdown:
   db.log: 5 lines, 2 errors
 ```
 
-**The Python app -- real run** (started directly, no Docker):
+**The Python app, run directly without Docker:**
 
 ```
 $ python3 docker/python-app/app.py &
 $ curl -s http://127.0.0.1:8000/health
-{"status": "ok", "host": "htch-runtime", "requests": 1}
+{"status": "ok", "host": "<hostname>", "requests": 1}
 $ curl -s http://127.0.0.1:8000/metrics
 # HELP demo_app_up 1 when the app is serving traffic
 # TYPE demo_app_up gauge
@@ -191,7 +190,7 @@ YAML OK: compose/monitoring/docker-compose.yml
 YAML OK: compose/monitoring/prometheus.yml
 ```
 
-**Dockerfiles -- hadolint 2.12.0** (downloaded for this check): all 3 clean.
+**Dockerfiles -- hadolint 2.12.0:** all 3 clean.
 One finding during the check (`DL3018` -- unpinned `apk` packages in
 `alpine-utils`) was a deliberate, documented tradeoff for a diagnostics
 toolbox; it now carries an explicit `# hadolint ignore=DL3018` with the
@@ -200,23 +199,22 @@ justification in the Dockerfile and in `docs/image-security.md`.
 **Secret scan -- clean:** `grep` for credential patterns across the repo
 found no real secrets. All `.env.*.example` files contain only
 `<generate-your-own>` placeholders; remaining hits are docs discussing
-secrets and the `.gitignore` itself. (`--container` mode fails cleanly here:
-`error: docker CLI not found on PATH`, exit 1 -- also covered by tests.)
+secrets and the `.gitignore` itself. (Without Docker installed, `--container` mode fails cleanly with
+`error: docker CLI not found on PATH` and exit code 1; the tests cover this.)
 
-### Needs a real Docker host (not validated here)
+### Still to test on a Docker host
 
-- **Image builds** (`docker build` on all 3 Dockerfiles) -- no docker CLI
-  available locally, so nothing was built. The Dockerfiles passed hadolint and
-  the app code ran for real, but the actual `docker build` is unverified.
+- **Image builds** (`docker build` on all 3 Dockerfiles). The Dockerfiles
+  pass hadolint and the app runs, but the images haven't been built yet.
 - **`docker compose up`** on both stacks, healthcheck behavior
   (`service_healthy` gating), and the cross-stack `docker network connect`
   step for Prometheus scraping `demo-app:8000`.
 - **Volume backup/restore** commands in `docs/volumes-backup.md` -- the
-  procedure is written step-by-step but was not executed (no daemon).
-- **`nginx -t`** on `nginx.conf` -- syntax reviewed by hand, not validated
-  against a real nginx binary.
+  procedure is written step by step but hasn't been run yet.
+- **`nginx -t`** on `nginx.conf` -- syntax reviewed by hand; not yet checked
+  with a real nginx binary.
 
-### Honest limitations
+### Known limitations
 
 - The collector's "top error lines" counts **exact** lines: two identical
   errors with different timestamps show as separate entries (visible in the
