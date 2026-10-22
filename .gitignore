@@ -1,4 +1,4 @@
-# LAB -- never commit real secrets or local state.
+# Never commit real secrets or local state.
 # .env.example files are committed intentionally; real .env files are not.
 
 # Real environment files (placeholders in *.example are fine)

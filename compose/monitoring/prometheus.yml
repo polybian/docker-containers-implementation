@@ -1,4 +1,4 @@
-# LAB Prometheus config: scrapes itself plus the lab app.
+# Prometheus config: scrapes itself plus the demo app.
 # Mounted read-only into the prometheus container (see docker-compose.yml).
 global:
   scrape_interval: 15s
@@ -10,13 +10,13 @@ scrape_configs:
       - targets: ['localhost:9090']
 
   # The python app from the app-db stack exposes real Prometheus metrics at
-  # /metrics (lab_app_up, lab_app_requests_total, lab_app_uptime_seconds).
+  # /metrics (demo_app_up, demo_app_requests_total, demo_app_uptime_seconds).
   # Cross-stack reachability: on one host, connect the app container to this
   # stack's network, e.g.
-  #   docker network connect lab-monitoring_monnet lab-app
+  #   docker network connect demo-monitoring_monnet demo-app
   # then this target resolves via Docker DNS. Until then Prometheus will show
   # the target as DOWN -- which is itself a useful thing to learn to read.
-  - job_name: lab-app
+  - job_name: demo-app
     metrics_path: /metrics
     static_configs:
-      - targets: ['lab-app:8000']
+      - targets: ['demo-app:8000']

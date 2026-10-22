@@ -1,4 +1,4 @@
-# monitoring stack (LAB)
+# monitoring stack
 
 Prometheus + Grafana on their own bridge network (`monnet`).
 
@@ -13,7 +13,7 @@ docker compose up -d
 ## Design notes
 
 - **Scrape config is a real file** (`prometheus.yml`), mounted `:ro`. It
-  scrapes Prometheus itself plus the `lab-app` target from the app-db stack
+  scrapes Prometheus itself plus the `demo-app` target from the app-db stack
   at `/metrics` -- see the comments in `prometheus.yml` for the one
   cross-stack networking step that requires.
 - **Grafana is a placeholder with honest defaults**: pinned image, named

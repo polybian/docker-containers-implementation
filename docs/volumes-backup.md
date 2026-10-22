@@ -1,4 +1,4 @@
-# Volumes vs bind mounts, and backing up a named volume (LAB)
+# Volumes vs bind mounts, and backing up a named volume
 
 ## Volumes vs bind mounts
 
@@ -34,7 +34,7 @@ docker compose -f compose/app-db/docker-compose.yml stop app
 # 2. Snapshot the volume with a throwaway alpine container.
 #    --rm: the container deletes itself when done; nothing lingers.
 docker run --rm \
-  -v lab-app-db_pgdata:/data:ro \
+  -v demo-app-db_pgdata:/data:ro \
   -v "$BACKUP_DIR":/backup \
   alpine tar czf "/backup/pgdata-${STAMP}.tar.gz" -C /data .
 
@@ -47,7 +47,7 @@ docker compose -f compose/app-db/docker-compose.yml start app
 ```
 
 > The volume name is prefixed with the compose project name
-> (`lab-app-db_pgdata`). Confirm yours with `docker volume ls`.
+> (`demo-app-db_pgdata`). Confirm yours with `docker volume ls`.
 
 ## Restore procedure (step by step)
 
@@ -57,12 +57,12 @@ docker compose -f compose/app-db/docker-compose.yml down
 
 # 1. Restore into the (now empty or stale) volume.
 docker run --rm \
-  -v lab-app-db_pgdata:/data \
+  -v demo-app-db_pgdata:/data \
   -v "$BACKUP_DIR":/backup:ro \
   alpine sh -c 'rm -rf /data/* /data/..?* /data/.[!.]* ; tar xzf /backup/pgdata-2026-10-20-0900.tar.gz -C /data'
 
 # 2. Fix ownership if the DB complains (postgres:16-alpine expects uid 70).
-docker run --rm -v lab-app-db_pgdata:/data alpine chown -R 70:70 /data
+docker run --rm -v demo-app-db_pgdata:/data alpine chown -R 70:70 /data
 
 # 3. Start the stack and check the DB answers.
 docker compose -f compose/app-db/docker-compose.yml up -d

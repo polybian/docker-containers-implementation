@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
-# LAB: tiny alpine network-diagnostics toolbox for the IT shop.
+# Tiny alpine network-diagnostics toolbox for the IT shop.
 # Demonstrates: minimal base image, single install layer, non-root user.
-# Usage: docker run --rm -it lab-utils dig example.com
-#        docker run --rm lab-utils curl -s http://app:8000/health
+# Usage: docker run --rm -it demo-utils dig example.com
+#        docker run --rm demo-utils curl -s http://app:8000/health
 
 # Practice: MINIMAL BASE + PINNED TAG. Alpine is ~7 MB and ships almost
 # nothing -- the opposite of a "kitchen sink" Ubuntu image. Pinning 3.21
@@ -32,5 +32,5 @@ RUN apk add --no-cache \
 USER netop
 WORKDIR /home/netop
 
-# Default to a shell; override per-run, e.g. `docker run --rm lab-utils ping -c3 app`.
+# Default to a shell; override per-run, e.g. `docker run --rm demo-utils ping -c3 app`.
 CMD ["/bin/sh"]

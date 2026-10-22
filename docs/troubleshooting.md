@@ -1,4 +1,4 @@
-# Troubleshooting runbook (LAB)
+# Troubleshooting runbook
 
 Triage order is deliberate: **observe first** (`ps`, `logs`, `inspect`),
 **interact second** (`exec`), **destroy last** (recreate/prune). Never start
@@ -8,9 +8,9 @@ with `prune` -- see "Disk pressure" below.
 
 ```bash
 docker ps -a                          # STATUS column: Exited (1)? Restarting?
-docker logs lab-app --tail 50         # the app's own last words -- start here
-docker logs lab-app --tail 50 --timestamps   # correlate with events
-docker inspect lab-app --format '{{.State.Error}} {{.State.ExitCode}}'
+docker logs demo-app --tail 50         # the app's own last words -- start here
+docker logs demo-app --tail 50 --timestamps   # correlate with events
+docker inspect demo-app --format '{{.State.Error}} {{.State.ExitCode}}'
 ```
 
 - **Exit 1 with a stack trace** -> application bug or bad config. Fix the
@@ -27,9 +27,9 @@ docker inspect lab-app --format '{{.State.Error}} {{.State.ExitCode}}'
 ## 2. Get a shell inside a running container
 
 ```bash
-docker exec -it lab-app sh            # alpine/slim images: `sh`, not `bash`
-docker exec lab-app ps aux            # non-interactive one-shot
-docker exec -u root lab-app sh        # break-glass root, for diagnosis only
+docker exec -it demo-app sh            # alpine/slim images: `sh`, not `bash`
+docker exec demo-app ps aux            # non-interactive one-shot
+docker exec -u root demo-app sh        # break-glass root, for diagnosis only
 ```
 
 `exec` is for inspection, not for fixing: any change you make by hand dies

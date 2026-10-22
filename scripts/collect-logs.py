@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""collect-logs.py -- LAB log triage helper (standard library only).
+"""collect-logs.py -- log triage helper (standard library only).
 
 Two input modes (pick exactly one):
   --dir PATH        read every ``*.log`` file in a directory
@@ -12,7 +12,7 @@ then prints a plain-text report (optionally also saved with --output).
 Examples:
   python3 scripts/collect-logs.py --dir /tmp/logs --top 20
   python3 scripts/collect-logs.py --dir /tmp/logs --output report.txt
-  python3 scripts/collect-logs.py --container lab-app --tail 500
+  python3 scripts/collect-logs.py --container demo-app --tail 500
 """
 import argparse
 import collections
@@ -134,7 +134,7 @@ def format_report(summary, source_desc, generated_at=None):
     err_pct = (errors / total * 100) if total else 0.0
 
     lines = [
-        "LOG COLLECTION REPORT (LAB)",
+        "LOG COLLECTION REPORT",
         f"Source       : {source_desc}",
         f"Generated    : {generated_at}",
         "",
@@ -168,7 +168,7 @@ def format_report(summary, source_desc, generated_at=None):
 
 def build_parser():
     p = argparse.ArgumentParser(
-        description="LAB log triage helper (standard library only)."
+        description="Log triage helper (standard library only)."
     )
     src = p.add_mutually_exclusive_group(required=True)
     src.add_argument("--dir", help="directory of *.log files to analyze")

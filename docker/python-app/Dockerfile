@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# LAB: multi-stage build for a tiny Python service.
+# Multi-stage build for a tiny Python service.
 # Demonstrates: pinned base tags, multi-stage builds, non-root runtime user,
 # layer-cache-friendly ordering, HEALTHCHECK without extra tooling.
 

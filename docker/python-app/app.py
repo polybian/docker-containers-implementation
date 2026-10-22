@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""lab-app: tiny LAB service for the docker-containers-lab project.
+"""demo-app: tiny demo service for the docker-containers-implementation project.
 
 Standard library only -- no pip installs, so the image stays small and the
 build stays reproducible. Exposes:
@@ -26,7 +26,7 @@ COUNT_LOCK = threading.Lock()
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "lab-app/1.0"
+    server_version = "demo-app/1.0"
 
     def log_message(self, fmt, *args):
         # Standard request log line on stdout. (BaseHTTPRequestHandler already
@@ -61,22 +61,22 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path == "/metrics":
             uptime = int(time.time() - STARTED_AT)
             body = (
-                "# HELP lab_app_up 1 when the app is serving traffic\n"
-                "# TYPE lab_app_up gauge\n"
-                "lab_app_up 1\n"
-                "# HELP lab_app_requests_total Total HTTP requests served\n"
-                "# TYPE lab_app_requests_total counter\n"
-                f"lab_app_requests_total {n}\n"
-                "# HELP lab_app_uptime_seconds Seconds since process start\n"
-                "# TYPE lab_app_uptime_seconds gauge\n"
-                f"lab_app_uptime_seconds {uptime}\n"
+                "# HELP demo_app_up 1 when the app is serving traffic\n"
+                "# TYPE demo_app_up gauge\n"
+                "demo_app_up 1\n"
+                "# HELP demo_app_requests_total Total HTTP requests served\n"
+                "# TYPE demo_app_requests_total counter\n"
+                f"demo_app_requests_total {n}\n"
+                "# HELP demo_app_uptime_seconds Seconds since process start\n"
+                "# TYPE demo_app_uptime_seconds gauge\n"
+                f"demo_app_uptime_seconds {uptime}\n"
             )
             self._send(200, body, "text/plain; version=0.0.4")
         elif self.path == "/":
             self._send(
                 200,
-                "<html><body><h1>lab-app</h1>"
-                "<p>LAB container is up. Try <a href='/health'>/health</a> "
+                "<html><body><h1>demo-app</h1>"
+                "<p>demo-app container is up. Try <a href='/health'>/health</a> "
                 "or <a href='/metrics'>/metrics</a>.</p></body></html>",
                 "text/html",
             )
@@ -85,7 +85,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    print(f"lab-app starting on 0.0.0.0:{PORT} (host={HOSTNAME})", flush=True)
+    print(f"demo-app starting on 0.0.0.0:{PORT} (host={HOSTNAME})", flush=True)
     # NOTE: binding 0.0.0.0 is correct *inside* the container. The container's
     # network namespace is isolated; what the outside world can reach is
     # controlled by `ports:` in compose, not by the bind address here.

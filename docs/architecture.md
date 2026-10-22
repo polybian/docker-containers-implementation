@@ -1,4 +1,4 @@
-# Architecture & design decisions (LAB)
+# Architecture & design decisions
 
 ## Why multi-stage builds
 
@@ -71,7 +71,7 @@ without a Docker host -- 16 tests prove it.
 - **No orchestrator** (Swarm/Kubernetes): compose is the right complexity
   for a small IT shop; the concepts (healthchecks, networks, volumes,
   secrets-at-runtime) transfer directly.
-- **No TLS termination in the lab**: nginx is configured as a reverse proxy
+- **No TLS termination in this implementation**: nginx is configured as a reverse proxy
   with the security headers that matter (`server_tokens off`, dotfile deny);
   real TLS would terminate here with certs mounted `:ro` at runtime -- never
   baked into the image (see `docs/image-security.md`).

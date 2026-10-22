@@ -1,4 +1,4 @@
-# Networking: bridge vs host, and port mapping (LAB)
+# Networking: bridge vs host, and port mapping
 
 ## The two modes you will actually use
 

@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# LAB: hardened nginx reverse proxy.
+# Hardened nginx reverse proxy.
 # Demonstrates: vendor unprivileged variant (non-root by default), pinned
 # tag, minimal config surface, HEALTHCHECK, no secrets in the image.
 
@@ -12,7 +12,7 @@ FROM nginxinc/nginx-unprivileged:1.27.4-alpine
 # Remove the stock default site (it ships a welcome page and extra surface)
 # and install our hardened config with the least-privilege location blocks.
 RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/lab.conf
+COPY nginx.conf /etc/nginx/conf.d/demo.conf
 
 # Practice: HEALTHCHECK. busybox wget ships in alpine, so no extra package.
 # Failing health checks is how the orchestrator knows to replace this

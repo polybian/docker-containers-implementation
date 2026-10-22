@@ -1,7 +1,7 @@
-# LAB stack: python app + postgres on an internal bridge network.
+# Demo stack: python app + postgres on an internal bridge network.
 # Run on a Docker host:  cp .env.example .env   # then fill in secrets
 #                        docker compose up -d --build
-name: lab-app-db
+name: demo-app-db
 
 services:
   app:
@@ -9,8 +9,8 @@ services:
       # Relative to this compose file: ../../docker/python-app
       context: ../../docker/python-app
       dockerfile: Dockerfile
-    image: lab-app:local
-    container_name: lab-app
+    image: demo-app:local
+    container_name: demo-app
     env_file:
       - .env
     environment:
@@ -31,7 +31,7 @@ services:
     # Pinned major + distro. Minor bumps (16.x) still flow; majors don't
     # surprise you on a rebuild.
     image: postgres:16-alpine
-    container_name: lab-db
+    container_name: demo-db
     env_file:
       - .env
     volumes:
@@ -48,7 +48,7 @@ services:
       retries: 5
     # NOTE: no `ports:` on purpose -- the database is reachable ONLY inside
     # appnet (the app talks to it as `db:5432` via Docker DNS). From your
-    # laptop use:  docker compose exec db psql -U <user> -d labdb
+    # laptop use:  docker compose exec db psql -U <user> -d demodb
 
 networks:
   appnet:

@@ -83,7 +83,7 @@ class TestSummarize(unittest.TestCase):
     def test_report_sections(self):
         report = cl.format_report(cl.summarize(SAMPLE), "unit-test",
                                   generated_at="2026-10-20 00:00:00 UTC")
-        for section in ("LOG COLLECTION REPORT (LAB)", "Total lines  : 9",
+        for section in ("LOG COLLECTION REPORT", "Total lines  : 9",
                         "Error lines  : 5", "Top 3 error lines", "Per-file breakdown:",
                         "app.log: 6 lines, 3 errors"):
             self.assertIn(section, report)
@@ -128,7 +128,7 @@ class TestDockerMode(unittest.TestCase):
         fake = mock.Mock(returncode=0, stdout="a\nb ERROR x\n", stderr="")
         with mock.patch("shutil.which", return_value="/usr/bin/docker"), \
              mock.patch("subprocess.run", return_value=fake) as run:
-            text = cl.docker_log_text("lab-app", tail=50)
+            text = cl.docker_log_text("demo-app", tail=50)
         self.assertEqual(text, "a\nb ERROR x\n")
         self.assertIn("--tail", run.call_args.args[0])
 
@@ -143,7 +143,7 @@ class TestMain(unittest.TestCase):
             self.assertEqual(rc, 0)
             with open(out) as fh:
                 content = fh.read()
-            self.assertIn("LOG COLLECTION REPORT (LAB)", content)
+            self.assertIn("LOG COLLECTION REPORT", content)
             self.assertIn("Total lines  : 2", content)
             self.assertIn("Error lines  : 1", content)
 
@@ -160,7 +160,7 @@ class TestMain(unittest.TestCase):
     def test_container_mode_without_docker_exits_1(self):
         with mock.patch("shutil.which", return_value=None), \
              mock.patch("sys.stderr"):
-            self.assertEqual(cl.main(["--container", "lab-app"]), 1)
+            self.assertEqual(cl.main(["--container", "demo-app"]), 1)
 
 
 if __name__ == "__main__":

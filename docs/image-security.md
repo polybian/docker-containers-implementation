@@ -1,4 +1,4 @@
-# Image security (LAB)
+# Image security
 
 Four practices, in the order attackers actually exploit their absence.
 

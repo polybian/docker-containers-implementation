@@ -1,6 +1,6 @@
-# Docker Containers Lab — Docker for IT Operations
+# Docker Containers Implementation — Docker for IT Operations
 
-A hands-on lab for running containers the way a small IT shop should:
+A hands-on implementation for running containers the way a small IT shop should:
 hardened images, compose stacks with sane networking, named-volume backups,
 a real troubleshooting runbook, and a log-triage helper with tests.
 
@@ -10,14 +10,14 @@ bridge networking and loopback-only port publishing, secrets-at-runtime
 (no credentials in images), named-volume backup/restore procedure,
 Prometheus scraping config, and testable Python tooling (stdlib only).
 
-**LAB scope:** everything here is lab-grade by design -- placeholder secrets,
+**Scope:** everything here is demo-grade by design -- placeholder secrets,
 loopback-only publishing, no real data. Nothing in this repo is production
 configuration; the patterns transfer, the values don't.
 
 ```
   ┌───────────────────────── app-db stack ─────────────────────────┐
   │  ┌──────────┐   appnet (bridge, internal)   ┌──────────────┐    │
-  │  │ lab-app  │ ──────────────────────────▶  │   lab-db     │    │
+  │  │ demo-app  │ ──────────────────────────▶  │   demo-db     │    │
   │  │ (python) │        db:5432 (Docker DNS)  │ (postgres 16)│    │
   │  └────┬─────┘      no published port        └──────┬───────┘    │
   │       │ :8000 → 127.0.0.1:8000 (loopback only)     │ pgdata      │
@@ -25,7 +25,7 @@ configuration; the patterns transfer, the values don't.
           │              monnet (bridge)               │ named volume
   ┌───────┼──────────── monitoring stack ─────────────┼─────────────┐
   │       │     ┌──────────────┐  scrape /metrics  ┌──▼───────────┐ │
-  │       ├──▶  │  prometheus  │ ◀───────────────── │  lab-app     │ │
+  │       ├──▶  │  prometheus  │ ◀───────────────── │  demo-app     │ │
   │       │     │    :9090     │  (network connect │  (app-db)    │ │
   │       ├──▶  │   grafana    │   documented in   └──────────────┘ │
   │             │    :3000     │   prometheus.yml)                  │
@@ -83,9 +83,9 @@ docker compose -f compose/monitoring/docker-compose.yml up -d
 # Prometheus: http://127.0.0.1:9090   Grafana: http://127.0.0.1:3000
 
 # Build the standalone images
-docker build -t lab-app ./docker/python-app
-docker build -t lab-nginx ./docker/nginx-proxy
-docker build -t lab-utils ./docker/alpine-utils
+docker build -t demo-app ./docker/python-app
+docker build -t demo-nginx ./docker/nginx-proxy
+docker build -t demo-utils ./docker/alpine-utils
 ```
 
 ## Security notes
@@ -135,9 +135,9 @@ Ran 16 tests in 0.012s -- OK
 in `/tmp`, outside the repo):
 
 ```
-$ python3 scripts/collect-logs.py --dir /tmp/lab-logs-demo --top 5
-LOG COLLECTION REPORT (LAB)
-Source       : directory /tmp/lab-logs-demo (2 .log file(s))
+$ python3 scripts/collect-logs.py --dir /tmp/demo-logs --top 5
+LOG COLLECTION REPORT
+Source       : directory /tmp/demo-logs (2 .log file(s))
 Generated    : 2026-10-20 20:56:03 UTC
 
 Total lines  : 15
@@ -164,12 +164,12 @@ $ python3 docker/python-app/app.py &
 $ curl -s http://127.0.0.1:8000/health
 {"status": "ok", "host": "htch-runtime", "requests": 1}
 $ curl -s http://127.0.0.1:8000/metrics
-# HELP lab_app_up 1 when the app is serving traffic
-# TYPE lab_app_up gauge
-lab_app_up 1
-# HELP lab_app_requests_total Total HTTP requests served
-# TYPE lab_app_requests_total counter
-lab_app_requests_total 2
+# HELP demo_app_up 1 when the app is serving traffic
+# TYPE demo_app_up gauge
+demo_app_up 1
+# HELP demo_app_requests_total Total HTTP requests served
+# TYPE demo_app_requests_total counter
+demo_app_requests_total 2
 $ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/nope
 404
 ```
@@ -208,7 +208,7 @@ secrets and the `.gitignore` itself. (`--container` mode fails cleanly here:
   the app code ran for real, but the actual `docker build` is unverified.
 - **`docker compose up`** on both stacks, healthcheck behavior
   (`service_healthy` gating), and the cross-stack `docker network connect`
-  step for Prometheus scraping `lab-app:8000`.
+  step for Prometheus scraping `demo-app:8000`.
 - **Volume backup/restore** commands in `docs/volumes-backup.md` -- the
   procedure is written step-by-step but was not executed (no daemon).
 - **`nginx -t`** on `nginx.conf` -- syntax reviewed by hand, not validated
@@ -221,6 +221,6 @@ secrets and the `.gitignore` itself. (`--container` mode fails cleanly here:
   run above). Timestamp-normalized grouping is a possible v2 improvement.
 - Error detection is heuristic regex (`ERROR|FATAL|Traceback|...`), not a
   parser -- right for triage, wrong for alerting.
-- `prometheus.yml` targets `lab-app:8000`, which only resolves after the
+- `prometheus.yml` targets `demo-app:8000`, which only resolves after the
   documented cross-stack network step; until then Prometheus shows the
   target DOWN (the config comments say so).

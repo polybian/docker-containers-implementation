@@ -1,13 +1,13 @@
-# LAB stack: mini monitoring -- Prometheus + Grafana.
+# Demo stack: mini monitoring -- Prometheus + Grafana.
 # Run on a Docker host:  cp .env.example .env   # then fill in Grafana creds
 #                        docker compose up -d
-name: lab-monitoring
+name: demo-monitoring
 
 services:
   prometheus:
     # Pinned. Check https://prometheus.io/download/ before bumping.
     image: prom/prometheus:v2.55.1
-    container_name: lab-prometheus
+    container_name: demo-prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -27,13 +27,13 @@ services:
   grafana:
     # Pinned. Grafana publishes a changelog worth reading before upgrades.
     image: grafana/grafana:11.4.0
-    container_name: lab-grafana
+    container_name: demo-grafana
     env_file:
       - .env
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-      # This is a lab box, not the internet: no public sign-ups.
+      # This is a demo environment, not the internet: no public sign-ups.
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - grafanadata:/var/lib/grafana
